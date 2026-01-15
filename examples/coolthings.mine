@@ -1,0 +1,34 @@
+take world.io.(input, println, printf)
+
+// static variable
+forever abc = 10
+// constant
+bedrock abc2 = 20
+// static constant
+bedrock forever abc3 = 30
+
+// new type
+block MyInt = i32
+
+kit Material{
+	Wood,
+	Stone,
+	Iron,
+	Diamond
+}
+
+overworld {
+	quest steve() {
+		craft current_tool = Material.Wood
+
+		mine current_tool {
+			Material.Diamond -> print("God mode!"),
+			_ -> print("keep grinding")
+		}
+	}
+
+	quest some_func() {
+		println("Some func!")
+	}
+}
+

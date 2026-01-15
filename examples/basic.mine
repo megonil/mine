@@ -1,0 +1,30 @@
+take world.io.*
+
+// public goes in here
+overworld {
+	// just like main
+	quest steve {
+		craft input_val = 0
+
+		grind {
+			print("Input some value")
+			mine input_val from input
+
+			if input_val > 10 {
+				print("Found diamonds!")
+				break
+			} else {
+				print("Too small, keep mining")
+			}
+		}
+
+		craft final_score = calculate_bonus(input_val)
+	}
+}
+
+// private function
+trade calculate_bonus(i32 val) i32 {
+	craft multiplier: f64 = 2
+
+	loot val * multiplier
+}

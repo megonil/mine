@@ -1,0 +1,9 @@
+take world.io.*
+
+overworld{
+	 quest steve {
+		grind craft i = 0; i < 10; i++ {
+			println(i)
+		}
+	}
+}

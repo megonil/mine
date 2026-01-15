@@ -1,0 +1,30 @@
+take world.io.(println, printf)
+
+overworld{
+	quest steve() {
+		some_procedure()
+
+		craft a = some_function(1, 2)
+		craft b = 4
+
+		// the dot means provide the function arguments automatically
+		a, b .= some_another_function()
+		// this is equals to
+		a, b = some_another_function(a, b)
+	}
+}
+
+quest some_procedure(i32 to_proceed) {
+	printf("Some procedure. Procedures doesn't return value. Got %d value", )
+}
+
+trade some_function(i32 a, i32 b) i32 {
+	println("Some function. Functions return values")
+	loot a + b
+}
+
+// this function returns 2 values
+// that's called tuple
+trade some_another_function(i32 a, i32 b) (i32, i32) {
+	loot (b * 2, a * 2)
+}

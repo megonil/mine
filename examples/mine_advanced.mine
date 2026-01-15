@@ -1,0 +1,16 @@
+take world.io.println
+
+overworld {
+	quest steve() {
+		craft a = 10;
+		craft b = 20;
+
+		craft result = mine (a, b) {
+			(1..20, 0..20) -> loot a + b,
+			_ -> loot a * b
+		}
+
+		println(result)
+	}
+}
+
