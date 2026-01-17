@@ -1,15 +1,10 @@
 #include <cctype>
 #include <cmath>
-#include <cstdint>
 #include <cstdlib>
 #include <lexer.hpp>
 #include <print>
-#include <string>
 
 #define advance() c++
-#define save()                                                            \
-	buffer += *c;                                                         \
-	advance()
 
 #define doubletok(t, dt, double_t)                                        \
 	case t:                                                               \
@@ -35,7 +30,6 @@ Lexer::Lex() // NOLINT(readability-function-cognitive-complexity)
 	}
 
 	Token result;
-	buffer.clear();
 
 	switch (*c)
 	{
@@ -61,17 +55,11 @@ Lexer::Lex() // NOLINT(readability-function-cognitive-complexity)
 		}
 		else if (isalpha())
 		{
-			save();
-			while (isalpha() || *c == '_')
-			{
-				save();
-			}
-
 			ident(result);
 		}
 		else
 		{
-			result.kind = static_cast<TokenType>(*c);
+			result.kind = to_ttype();
 			advance();
 		}
 	}
@@ -99,7 +87,8 @@ Lexer::number(Token& tok)
 
 			has_dot = true;
 		}
-		save();
+
+		advance();
 	}
 
 	llvm::StringRef ref(number_start, c - number_start);
@@ -160,19 +149,107 @@ Lexer::number(Token& tok)
 	}
 }
 
+char
+Lexer::read_escape()
+{
+#define advbr()                                                           \
+	advance();                                                            \
+	break;
+
+	char chr = 0; // result
+	advance();	  // start of escape sequence
+
+	switch (*c)
+	{
+	case 'a': chr = '\a'; advbr();
+	case 'b': chr = '\b'; advbr();
+	case 'f': chr = '\f'; advbr();
+	case 'e': chr = '\e'; advbr();
+	case 'r': // caret return
+	case 'n': chr = '\n'; advbr();
+	case 't': chr = '\t'; advbr();
+	case 'v': chr = '\v'; advbr();
+	case '\\':
+	case '"':
+	case '\'': chr = *c; advbr();
+
+	case EOF: return chr;
+
+	default: advance(); return chr;
+	}
+
+	return chr;
+};
+
 void
 Lexer::string(Token& tok)
 {
+	std::string val;
+	advance(); // "
+
+	while (*c != '"')
+	{
+		switch (*c)
+		{
+		case '\\': val += read_escape(); break;
+		case '\0':
+		case EOF:
+			std::println("Unfinished string");
+			std::exit(1);
+			break;
+		default: val += *c; advance();
+		}
+	}
+
+	advance(); // "
+	llvm::StringRef ref(val);
+	tok.sem.Set(ref);
+	tok.kind = TokenType::Literal;
 }
 
 void
 Lexer::ident(Token& tok)
 {
+	const char* start = c;
+	while (isalpha() || *c == '_')
+	{
+		advance();
+	}
+
+	llvm::StringRef ref(start, c - start);
+	if (keywords.contains(ref.str()))
+	{
+		tok.kind = keywords[ref.str()];
+		return;
+	}
+
+	tok.kind = TokenType::Name;
+	tok.sem.Set(ref);
 }
 
 void
 Lexer::ch(Token& tok)
 {
+	advance(); // '
+	char chr = 0;
+
+	if (*c == '\\')
+	{
+		chr = read_escape();
+	}
+	else
+	{
+		chr = *c;
+	}
+	if (*c != '\'')
+	{
+		std::println("Unfinished char literal");
+		std::exit(1);
+	}
+	advance(); // ''
+
+	tok.kind = TokenType::Literal;
+	tok.sem.Set(static_cast<int64_t>(chr), I8);
 }
 
 bool
@@ -183,6 +260,7 @@ Lexer::check_next(char check_for)
 		advance();
 		return true;
 	}
+
 	return false;
 }
 

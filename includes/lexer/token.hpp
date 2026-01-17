@@ -94,10 +94,10 @@ struct SemanticInfo
 	}
 
 	void
-	Set(llvm::StringRef val, SemanticValueType kind)
+	Set(llvm::StringRef val)
 	{
-		type	= kind;
 		value.s = val;
+		type	= StringVal;
 	}
 
 	llvm::StringRef
@@ -182,8 +182,8 @@ token_type2str(TokenType token_type)
 
 struct Token
 {
-	TokenType	 kind = TokenType::Default;
 	SemanticInfo sem;
+	TokenType	 kind = TokenType::Default;
 
 	Token() = default;
 
@@ -196,7 +196,7 @@ struct Token
 	}
 
 	explicit Token(TokenType type, SemanticInfo& sem)
-		: kind(type), sem(sem)
+		: sem(sem), kind(type)
 	{
 	}
 
@@ -204,6 +204,12 @@ struct Token
 	IsType() const
 	{
 		return kind == TokenType::Type;
+	}
+
+	bool
+	IsLiteral() const
+	{
+		return kind == TokenType::Literal;
 	}
 
 	std::string
@@ -235,6 +241,7 @@ struct Token
 			base += ')';
 			return base;
 		}
+
 		return token_type2str(kind);
 	}
 };

@@ -1,15 +1,18 @@
 #pragma once
+#include "keywords.h"
+
 #include <error.hpp>
 #include <llvm/Support/SourceMgr.h>
 #include <token.hpp>
+#include <unordered_map>
 
 class Lexer
 {
-	llvm::SourceMgr* src_mgr;
-	std::string		 buffer;
-	unsigned		 fbuffer;
-	const char*		 c;
-	const char*		 start;
+	llvm::SourceMgr*						   src_mgr;
+	unsigned								   fbuffer;
+	const char*								   c;
+	const char*								   start;
+	std::unordered_map<std::string, TokenType> keywords;
 
 public:
 	explicit Lexer(llvm::SourceMgr* mgr)
@@ -18,6 +21,9 @@ public:
 		const auto* buf = src_mgr->getMemoryBuffer(fbuffer);
 		start			= buf->getBufferStart();
 		c				= start;
+#define t(variant, str) {str, TokenType::variant},
+		keywords = {KEYWORD_LIST(t)};
+#undef t
 	}
 
 	/// Lex 1 token
@@ -60,7 +66,7 @@ private:
 	void
 	advance();
 
-	void
+	char
 	read_escape();
 
 	constexpr unsigned char

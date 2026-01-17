@@ -1,25 +1,9 @@
-#pragma once
 #ifndef token_list
 #define token_list
+#include "keywords.h"
 
 #define TOKEN_LIST(T)                                                     \
-	T(Craft, "craft")                                                     \
-	T(Mine, "mine")                                                       \
-	T(Bedrock, "bedrock")                                                 \
-	T(Forever, "forever")                                                 \
-	T(Kit, "kit")                                                         \
-	T(Trade, "trade")                                                     \
-	T(Quest, "quest")                                                     \
-	T(Block, "block")                                                     \
-	T(Overworld, "overworld")                                             \
-	T(Nether, "nether")                                                   \
-	T(Cube, "cube")                                                       \
-	T(Loot, "loot")                                                       \
-	T(Grind, "grind")                                                     \
-	T(If, "if")                                                           \
-	T(Else, "else")                                                       \
-	T(Take, "take")                                                       \
-	T(From, "from")                                                       \
+	KEYWORD_LIST(T)                                                       \
 	T(DoubleDot, "..")                                                    \
 	T(ThinArrow, "->")                                                    \
 	T(FatArrow, "=>")                                                     \
