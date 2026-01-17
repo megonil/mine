@@ -59,9 +59,6 @@ private:
 	bool
 	check_next(char check_for);
 
-	bool
-	current_is_new_line();
-
 	/// Move the c pointer
 	void
 	advance();

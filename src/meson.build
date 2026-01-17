@@ -1,7 +1,7 @@
+subdir('error')
 subdir('lexer')
 subdir('parser')
 subdir('compiler')
-subdir('error')
 
 executable(
 	'minec',

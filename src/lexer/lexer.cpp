@@ -1,8 +1,7 @@
 #include <cctype>
 #include <cmath>
-#include <cstdlib>
 #include <lexer.hpp>
-#include <print>
+#include <llvm/Support/SMLoc.h>
 
 #define advance() c++
 
@@ -20,6 +19,11 @@
 		}                                                                 \
 		break;                                                            \
 	}
+
+#define lex_error(start, kind)                                            \
+	llvm::SMLoc	  error_loc = llvm::SMLoc::getFromPointer(c);             \
+	llvm::SMRange range(llvm::SMLoc::getFromPointer(start), error_loc);   \
+	ErrorMaker::Error(kind, src_mgr, range, error_loc);
 
 Token
 Lexer::Lex() // NOLINT(readability-function-cognitive-complexity)
@@ -80,9 +84,7 @@ Lexer::number(Token& tok)
 		{
 			if (has_dot)
 			{
-				// placeholder
-				std::println("Multiple dots");
-				std::exit(1);
+				lex_error(number_start, ErrorKind::MultipleDots);
 			}
 
 			has_dot = true;
@@ -94,21 +96,19 @@ Lexer::number(Token& tok)
 	llvm::StringRef ref(number_start, c - number_start);
 
 	SemanticValueType val_type = has_dot ? F64 : F32;
-#define suffix(c, t, check, msg)                                          \
+#define suffix(c, t, check, kind)                                         \
 	case c:                                                               \
 		if (check)                                                        \
 		{                                                                 \
-			std::println(msg);                                            \
-			std::exit(1);                                                 \
+			lex_error(number_start, kind)                                 \
 		}                                                                 \
 		val_type = t;                                                     \
 		break;
 
-#define int_suffix(c, t)                                                  \
-	suffix(c, t, has_dot, "Found integer suffix with a float")
+#define int_suffix(c, t) suffix(c, t, has_dot, ErrorKind::InvalidIntSuffix)
 
 #define float_suffix(c, t)                                                \
-	suffix(c, t, !has_dot, "Found float suffix with an integer")
+	suffix(c, t, !has_dot, ErrorKind::InvalidFloatSuffix)
 
 	if (isalpha())
 	{
@@ -121,8 +121,7 @@ Lexer::number(Token& tok)
 
 		default:
 			// placeholder
-			std::println("Invalid number suffix");
-			std::exit(1);
+			lex_error(number_start, ErrorKind::InvalidNumberSuffix);
 		}
 
 		advance(); // suffix
@@ -165,7 +164,7 @@ Lexer::read_escape()
 	case 'b': chr = '\b'; advbr();
 	case 'f': chr = '\f'; advbr();
 	case 'e': chr = '\e'; advbr();
-	case 'r': // caret return
+	case 'r': chr = '\r'; advbr();
 	case 'n': chr = '\n'; advbr();
 	case 't': chr = '\t'; advbr();
 	case 'v': chr = '\v'; advbr();
@@ -184,6 +183,7 @@ Lexer::read_escape()
 void
 Lexer::string(Token& tok)
 {
+	const char* str_start = c;
 	std::string val;
 	advance(); // "
 
@@ -194,9 +194,10 @@ Lexer::string(Token& tok)
 		case '\\': val += read_escape(); break;
 		case '\0':
 		case EOF:
-			std::println("Unfinished string");
-			std::exit(1);
+		{
+			lex_error(str_start, ErrorKind::UnfinishedString);
 			break;
+		}
 		default: val += *c; advance();
 		}
 	}
@@ -230,6 +231,7 @@ Lexer::ident(Token& tok)
 void
 Lexer::ch(Token& tok)
 {
+	const char* chr_start = c;
 	advance(); // '
 	char chr = 0;
 
@@ -243,8 +245,7 @@ Lexer::ch(Token& tok)
 	}
 	if (*c != '\'')
 	{
-		std::println("Unfinished char literal");
-		std::exit(1);
+		lex_error(chr_start, ErrorKind::UnfinishedChar);
 	}
 	advance(); // ''
 
