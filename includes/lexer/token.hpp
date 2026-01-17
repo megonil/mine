@@ -1,14 +1,134 @@
+#include "semtypes.h"
 #include "tokens.h"
 
 #include <climits>
 #include <cstdint>
 #include <cstdio>
+#include <format>
+#include <llvm/ADT/StringRef.h>
+#include <string>
 
-union SemanticInfo
+enum SemanticValueType : uint8_t
 {
-	int			i;
-	double		d;
-	const char* s;
+#define t(type, str) type,
+	SEMTYPES_LIST(t)
+#undef t
+};
+
+constexpr const char* ttsem_names[] = // NOLINT
+	{
+#define t(type, str) str,
+		SEMTYPES_LIST(t)
+#undef t
+};
+
+union SemanticValue
+{
+	int64_t			i;
+	uint64_t		u;
+	double			d;
+	llvm::StringRef s;
+
+	SemanticValue() : i(0)
+	{
+	}
+
+	explicit SemanticValue(int64_t val) : i(val)
+	{
+	}
+
+	explicit SemanticValue(uint64_t val) : u(val)
+	{
+	}
+
+	explicit SemanticValue(double val) : d(val)
+	{
+	}
+
+	explicit SemanticValue(llvm::StringRef val) : s(val)
+	{
+	}
+};
+
+struct SemanticInfo
+{
+	SemanticValue	  value;
+	SemanticValueType type = SemanticValueType::None;
+
+	SemanticInfo() = default;
+
+	SemanticInfo(int64_t val, SemanticValueType kind)
+		: value(val), type(kind)
+	{
+	}
+
+	SemanticInfo(uint64_t val, SemanticValueType kind)
+		: value(val), type(kind)
+	{
+	}
+
+	SemanticInfo(double val, SemanticValueType kind)
+		: value(val), type(kind)
+	{
+	}
+
+	void
+	Set(int64_t val, SemanticValueType kind)
+	{
+		type	= kind;
+		value.i = val;
+	}
+
+	void
+	Set(uint64_t val, SemanticValueType kind)
+	{
+		type	= kind;
+		value.u = val;
+	}
+
+	void
+	Set(double val, SemanticValueType kind)
+	{
+		type	= kind;
+		value.d = val;
+	}
+
+	void
+	Set(llvm::StringRef val, SemanticValueType kind)
+	{
+		type	= kind;
+		value.s = val;
+	}
+
+	llvm::StringRef
+	GetString() const
+	{
+		return value.s;
+	}
+
+	int64_t
+	GetInt() const
+	{
+		return value.i;
+	}
+
+	uint64_t
+	GetUint() const
+	{
+		return value.u;
+	}
+
+	double
+	GetDouble() const
+	{
+		return value.d;
+	}
+
+	const char*
+	Type2str() const
+	{
+		return ttsem_names[type]; // NOLINT
+	}
 };
 
 enum class TokenType : uint16_t
@@ -63,15 +183,20 @@ token_type2str(TokenType token_type)
 struct Token
 {
 	TokenType	 kind = TokenType::Default;
-	SemanticInfo sem{};
+	SemanticInfo sem;
 
 	Token() = default;
+
+	explicit Token(TokenType type) : kind(type)
+	{
+	}
 
 	explicit Token(SemanticInfo* sem) : sem(*sem)
 	{
 	}
 
-	explicit Token(SemanticInfo sem, TokenType kind) : kind(kind), sem(sem)
+	explicit Token(TokenType type, SemanticInfo& sem)
+		: kind(type), sem(sem)
 	{
 	}
 
@@ -81,9 +206,35 @@ struct Token
 		return kind == TokenType::Type;
 	}
 
-	const char*
+	std::string
 	String() const
 	{
+		if (sem.type != None)
+		{
+			std::string base = token_type2str(kind);
+
+			base += '(';
+			switch (sem.type)
+			{
+			case I8:
+			case I16:
+			case I32:
+			case I64: base += std::to_string(sem.GetInt()); break;
+			case U8:
+			case U16:
+			case U32:
+			case U64: base += std::to_string(sem.GetUint()); break;
+			case F32:
+			case F64: base += std::format("{:g}", sem.GetDouble()); break;
+			case Name:
+			case StringVal: base += sem.GetString().str(); break;
+			default: __builtin_unreachable();
+			}
+
+			base += sem.Type2str();
+			base += ')';
+			return base;
+		}
 		return token_type2str(kind);
 	}
 };

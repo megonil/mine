@@ -1,3 +1,4 @@
+#pragma once
 #include <error.hpp>
 #include <llvm/Support/SourceMgr.h>
 #include <token.hpp>
@@ -61,4 +62,16 @@ private:
 
 	void
 	read_escape();
+
+	constexpr unsigned char
+	to_uchar();
+
+	constexpr TokenType
+	to_ttype();
+
+	constexpr bool
+	isalpha();
+
+	constexpr bool
+	isdigit();
 };

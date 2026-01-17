@@ -14,6 +14,7 @@ Checks: >
     -cppcoreguidelines-pro-bounds-pointer-arithmetic,
     -cppcoreguidelines-macro-usage,
     -cppcoreguidelines-pro-types-varargs,
+    -cppcoreguidelines-pro-type-union-access,
 
 WarningsAsErrors: "*"
 

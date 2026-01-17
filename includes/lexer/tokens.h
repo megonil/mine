@@ -30,7 +30,9 @@
 	T(And, "&&")                                                          \
 	T(NEq, "!=")                                                          \
 	T(Type, "type")                                                       \
-	T(Attribute, "@attribute")                                            \
-	T(Eof, "eof")
+	T(Name, "<name>")                                                     \
+	T(Attribute, "<attribute>")                                           \
+	T(Literal, "<literal>")                                               \
+	T(Eof, "EOF")
 
 #endif // !token_list
