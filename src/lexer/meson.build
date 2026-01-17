@@ -1,5 +1,5 @@
 lexer_lib = static_library(
-  'lexer',
-  'lexer.c',
-  include_directories: includes,
+	'lexer',
+	'lexer.cpp',
+	include_directories: includes,
 )

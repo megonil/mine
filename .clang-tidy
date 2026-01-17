@@ -9,7 +9,11 @@ Checks: >
     cert-dcl50-cpp,
     hicpp-*,
     -modernize-use-trailing-return-type,
-    -readability-magic-numbers
+    -readability-magic-numbers,
+    -modernize-use-nodiscard,
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+    -cppcoreguidelines-macro-usage,
+    -cppcoreguidelines-pro-types-varargs,
 
 WarningsAsErrors: "*"
 
@@ -38,18 +42,20 @@ CheckOptions:
       value: lower_case
     - key: readability-identifier-naming.MemberCase
       value: lower_case
-    - key: readability-identifier-naming.MemberSuffix
-      value: _
     - key: readability-identifier-naming.ParameterCase
       value: lower_case
     - key: readability-identifier-naming.FunctionCase
       value: lower_case
-    - key: readability-identifier-naming.MethodCase
+    - key: readability-identifier-naming.PublicMethodCase
+      value: CamelCase
+    - key: readability-identifier-naming.ProtectedMethodCase
+      value: CamelCase
+    - key: readability-identifier-naming.PrivateMethodCase
       value: lower_case
     - key: readability-identifier-naming.NamespaceCase
       value: lower_case
     - key: readability-identifier-naming.EnumConstantCase
-      value: UPPER_CASE
+      value: CamelCase
     - key: readability-identifier-naming.ConstantCase
       value: lower_case
     - key: readability-identifier-naming.StaticConstantCase

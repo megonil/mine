@@ -1,5 +1,5 @@
 error_lib = static_library(
-  'error',
-  'error.c',
-  include_directories: includes,
+	'error',
+	'error.cpp',
+	include_directories: includes,
 )
