@@ -1,3 +1,4 @@
+#pragma once
 #include "ast/node.hpp"
 #include "expr.hpp"
 #include "token.hpp"

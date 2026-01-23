@@ -2,7 +2,8 @@
 
 #define EXPR_LIST(T)                                                      \
 	T(BinaryExpr, "BinaryExpr")                                           \
-	T(LiteralExpr, "LiteralExpr")
+	T(LiteralExpr, "LiteralExpr")                                         \
+	T(UnaryExpr, "UnaryExpr")
 
 #define NODE_LIST(T)                                                      \
 	STMT_LIST(T)                                                          \

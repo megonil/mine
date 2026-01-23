@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast.h"
+#include "ast/expr/unary_expr.hpp"
 #include "ast/node.hpp"
 #include "ast/stmt/expr_stmt.hpp"
 #include "parser.hpp"
@@ -41,6 +42,7 @@ public:
 		case NExprStmt: return vis(ExprStmt);
 		case NBinaryExpr: return vis(BinaryExpr);
 		case NLiteralExpr: return vis(LiteralExpr);
+		case NUnaryExpr: return vis(UnaryExpr);
 		default:
 			return as_derived()->VisitNode(node);
 			// do nothing
@@ -55,13 +57,19 @@ public:
 
 	RetType
 	VisitLiteralExpr(LiteralExpr* expr)
-	{ // Исправлен тип аргумента
+	{
 		return as_derived()->VisitExpr(expr);
 	}
 
 	RetType
 	VisitBinaryExpr(BinaryExpr* expr)
-	{ // Исправлен тип аргумента
+	{
+		return as_derived()->VisitExpr(expr);
+	}
+
+	RetType
+	VisitUnaryExpr(UnaryExpr* expr)
+	{
 		return as_derived()->VisitExpr(expr);
 	}
 
@@ -163,6 +171,24 @@ public:
 			pad();
 			std::print("right: ");
 			Visit(expr->Right());
+			std::print("\n");
+		}
+		pad();
+		std::print(")");
+	}
+
+	void
+	VisitUnaryExpr(UnaryExpr* expr)
+	{
+		pad();
+		std::print("Unary<{}>(\n", UnaryExpr::UnOpr2str(expr->Opr()));
+		{
+			Indent scope(&indent_level);
+
+			pad();
+			Visit(expr->GetExpr());
+			std::print("\n");
+			pad();
 			std::print("\n");
 		}
 		pad();

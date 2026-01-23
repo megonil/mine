@@ -146,6 +146,14 @@ Parser::literal()
 ExprP
 Parser::unary()
 {
-	return nullptr;
+	// current is an unary operator
+	auto opr = UnaryExpr::TTypeToUnOpr(curr.kind);
+	if (opr == UnOpr::Wrong)
+	{
+		error("Expected unary operator");
+	}
+
+	next();
+	return std::make_unique<UnaryExpr>(opr, expr(), prev.start, prev.end);
 }
 #undef error
