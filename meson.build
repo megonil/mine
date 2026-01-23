@@ -15,6 +15,7 @@ inc_dirs = [
 	'includes/parser',
 	'includes/compiler',
 	'includes/error',
+	'includes/value',
 ]
 
 includes = include_directories(inc_dirs)

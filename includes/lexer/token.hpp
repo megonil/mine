@@ -1,3 +1,4 @@
+#pragma once
 #include "semtypes.h"
 #include "tokens.h"
 
@@ -6,7 +7,9 @@
 #include <cstdio>
 #include <format>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/SMLoc.h>
 #include <string>
+#include <type.hpp>
 
 enum SemanticValueType : uint8_t
 {
@@ -184,19 +187,23 @@ struct Token
 {
 	SemanticInfo sem;
 	TokenType	 kind = TokenType::Default;
+	llvm::SMLoc	 start;
+	llvm::SMLoc	 end;
 
 	Token() = default;
 
-	explicit Token(TokenType type) : kind(type)
+	explicit Token(llvm::SMLoc start) : start(start)
 	{
 	}
 
-	explicit Token(SemanticInfo* sem) : sem(*sem)
+	explicit Token(TokenType type, SemanticInfo& sem, llvm::SMLoc start,
+				   llvm::SMLoc end)
+		: sem(sem), kind(type), start(start), end(end)
 	{
 	}
 
-	explicit Token(TokenType type, SemanticInfo& sem)
-		: sem(sem), kind(type)
+	explicit Token(TokenType type, llvm::SMLoc start, llvm::SMLoc end)
+		: kind(type), start(start), end(end)
 	{
 	}
 
@@ -237,11 +244,19 @@ struct Token
 			default: __builtin_unreachable();
 			}
 
+			base += ':';
 			base += sem.Type2str();
 			base += ')';
+
 			return base;
 		}
 
 		return token_type2str(kind);
+	}
+
+	void
+	SetEnd(llvm::SMLoc new_end)
+	{
+		end = new_end;
 	}
 };

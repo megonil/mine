@@ -46,6 +46,7 @@ public:
 	case ErrorKind::variant: return string;
 			ERROR_LIST(t)
 #undef t
+		default: return "unknown";
 		}
 	}
 };

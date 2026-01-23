@@ -33,7 +33,7 @@ Lexer::Lex() // NOLINT(readability-function-cognitive-complexity)
 		advance();
 	}
 
-	Token result;
+	Token result(llvm::SMLoc::getFromPointer(c));
 
 	switch (*c)
 	{
@@ -50,6 +50,7 @@ Lexer::Lex() // NOLINT(readability-function-cognitive-complexity)
 		doubletok('<', '=', TokenType::Le);
 		doubletok('|', '|', TokenType::Or);
 		doubletok('&', '&', TokenType::And);
+		doubletok('/', '/', TokenType::IDiv);
 
 	default:
 		// keyword or name or number
@@ -68,6 +69,7 @@ Lexer::Lex() // NOLINT(readability-function-cognitive-complexity)
 		}
 	}
 
+	result.SetEnd(llvm::SMLoc::getFromPointer(c));
 	return result;
 }
 #undef doubletok
@@ -92,10 +94,11 @@ Lexer::number(Token& tok)
 
 		advance();
 	}
+	tok.SetEnd(llvm::SMLoc::getFromPointer(c));
 
 	llvm::StringRef ref(number_start, c - number_start);
 
-	SemanticValueType val_type = has_dot ? F64 : F32;
+	SemanticValueType val_type = has_dot ? F64 : I32;
 #define suffix(c, t, check, kind)                                         \
 	case c:                                                               \
 		if (check)                                                        \
@@ -206,6 +209,7 @@ Lexer::string(Token& tok)
 	llvm::StringRef ref(val);
 	tok.sem.Set(ref);
 	tok.kind = TokenType::Literal;
+	tok.SetEnd(llvm::SMLoc::getFromPointer(c));
 }
 
 void
@@ -221,9 +225,11 @@ Lexer::ident(Token& tok)
 	if (keywords.contains(ref.str()))
 	{
 		tok.kind = keywords[ref.str()];
+		tok.SetEnd(llvm::SMLoc::getFromPointer(c));
 		return;
 	}
 
+	tok.SetEnd(llvm::SMLoc::getFromPointer(c));
 	tok.kind = TokenType::Name;
 	tok.sem.Set(ref);
 }
@@ -251,6 +257,7 @@ Lexer::ch(Token& tok)
 
 	tok.kind = TokenType::Literal;
 	tok.sem.Set(static_cast<int64_t>(chr), I8);
+	tok.SetEnd(llvm::SMLoc::getFromPointer(c));
 }
 
 bool

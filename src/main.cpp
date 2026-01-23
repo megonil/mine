@@ -1,3 +1,6 @@
+#include "ast/visitor.hpp"
+#include "parser.hpp"
+
 #include <iostream>
 #include <lexer.hpp>
 #include <llvm/Support/MemoryBuffer.h>
@@ -30,10 +33,13 @@ main(int argc, char* argv[])
 
 	Lexer lexer(&src_mgr);
 	Token token;
-	while ((token = lexer.Lex()).kind != TokenType::Eof)
-	{
-		std::print("Token: {}\n", token.String());
-	}
+
+	Parser parser(&lexer);
+	AST	   tree;
+	parser.Parse(tree);
+
+	ASTPrinter printer(&tree);
+	printer.VisitAll();
 
 	return 0;
 }

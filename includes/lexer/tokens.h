@@ -5,6 +5,7 @@
 #define TOKEN_LIST(T)                                                     \
 	KEYWORD_LIST(T)                                                       \
 	T(DoubleDot, "..")                                                    \
+	T(IDiv, "//")                                                         \
 	T(ThinArrow, "->")                                                    \
 	T(FatArrow, "=>")                                                     \
 	T(Ge, ">=")                                                           \
@@ -13,7 +14,7 @@
 	T(Or, "||")                                                           \
 	T(And, "&&")                                                          \
 	T(NEq, "!=")                                                          \
-	T(Type, "type")                                                       \
+	T(Type, "<type>")                                                     \
 	T(Name, "<name>")                                                     \
 	T(Attribute, "<attribute>")                                           \
 	T(Literal, "<literal>")                                               \
