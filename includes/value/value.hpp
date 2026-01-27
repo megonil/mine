@@ -5,10 +5,11 @@
 
 #include <cstdint>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/IR/Type.h>
 
 union ValueData
 {
-#define t(T, rt, field, str) rt field;
+#define t(T, rt, field, str, lfn) rt field;
 	TYPE_LIST(t)
 #undef t
 };
@@ -61,12 +62,6 @@ struct Value
 	std::string
 	String() const
 	{
-		constexpr size_t big = 100000000;
-		if (repr.size() > big)
-		{
-			return "error: too long";
-		}
-
 		std::string res;
 		if (repr.data() != nullptr)
 		{
@@ -88,12 +83,41 @@ struct Value
 		return res;
 	}
 
+	struct TypePair
+	{
+		llvm::Type* left;
+		llvm::Type* right;
+	};
+
+	static llvm::Type*
+	CommonType(TypePair pair, llvm::LLVMContext* context)
+	{
+		auto* left	= pair.left;
+		auto* right = pair.right;
+		if (left == right)
+		{
+			return left;
+		}
+		if (left->isIntegerTy() && right->isIntegerTy())
+		{
+			return left->getIntegerBitWidth() > right->getIntegerBitWidth()
+					   ? left
+					   : right; // pick bigger type
+		}
+		if (left->isDoubleTy() || right->isDoubleTy())
+		{
+			return llvm::Type::getDoubleTy(*context);
+		}
+
+		return llvm::Type::getFloatTy(*context);
+	}
+
 private:
 	template <typename T>
 	void
 	set_value_unsafe(T val)
 	{
-#define set_direct(Ty, rt, field, str)                                    \
+#define set_direct(Ty, rt, field, str, lfn)                               \
 	if constexpr (std::is_same_v<T, rt>)                                  \
 	{                                                                     \
 		data.field = val;                                                 \
@@ -110,7 +134,7 @@ private:
 	{
 		switch (target_type)
 		{
-#define set_switch(T, rt, field, str)                                     \
+#define set_switch(T, rt, field, str, lfn)                                \
 	case ValueType::T: data.field = static_cast<rt>(val); break;
 			TYPE_LIST(set_switch)
 		}

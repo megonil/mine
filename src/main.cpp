@@ -1,4 +1,5 @@
 #include "ast/visitor.hpp"
+#include "compiler.hpp"
 #include "parser.hpp"
 
 #include <iostream>
@@ -40,6 +41,12 @@ main(int argc, char* argv[])
 
 	ASTPrinter printer(&tree);
 	printer.VisitAll();
+
+	Compiler compiler(&tree, filename);
+	compiler.VisitAll();
+
+	auto module = compiler.Module();
+	module->print(llvm::outs(), nullptr);
 
 	return 0;
 }

@@ -15,6 +15,7 @@ Checks: >
     -cppcoreguidelines-macro-usage,
     -cppcoreguidelines-pro-types-varargs,
     -cppcoreguidelines-pro-type-union-access,
+    -readability-function-cognitive-complexity,
 
 WarningsAsErrors: "*"
 

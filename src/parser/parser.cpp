@@ -154,6 +154,7 @@ Parser::unary()
 	}
 
 	next();
-	return std::make_unique<UnaryExpr>(opr, expr(), prev.start, prev.end);
+	return std::make_unique<UnaryExpr>(opr, prec(PrecedenceLevel::Unary),
+									   prev.start, prev.end);
 }
 #undef error

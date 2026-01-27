@@ -2,6 +2,7 @@
 #include "expr.hpp"
 #include "value.hpp"
 
+#include <llvm/IR/Type.h>
 #include <llvm/Support/SMLoc.h>
 
 class LiteralExpr : public Expr
